@@ -1,0 +1,6 @@
+@lapak_backend_HostAddress = http://localhost:5298
+
+GET {{lapak_backend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
