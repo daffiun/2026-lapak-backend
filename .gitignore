@@ -1,8 +1,25 @@
+# VS / .net
+.vs/
 bin/
 obj/
-.vs/
-.env 
-appsettings.Development.json
 
+# User specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
 
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
 
+# ASP.NET Core
+appsettings*.Development.json
+
+# Environment 
+.env
+
+# OS junk
+.DS_Store
