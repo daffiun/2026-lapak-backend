@@ -11,5 +11,6 @@ namespace lapak_backend.Models
         public DateTime BookingDate { get; set; }
         public int RoomId { get; set; }
         public string Status { get; set; } = "Pending";
+        public Room? Room { get; set; }
     }
 }

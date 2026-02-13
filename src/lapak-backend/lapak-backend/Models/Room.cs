@@ -8,5 +8,6 @@ namespace lapak_backend.Models
         public int BuildingId { get; set; }
         public string Description { get; set; } = string.Empty;
         public string HeadOfRoom { get; set; } = string.Empty;
+        public Building? Building { get; set; }
     }
 }
