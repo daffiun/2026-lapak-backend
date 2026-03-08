@@ -16,20 +16,16 @@ namespace lapak_backend.Controllers
             _context = context;
         }
 
-        // FITUR: Penelusuran & Riwayat Peminjaman
-        // GET: api/booking?status=Pending&search=Aulia
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Booking>>> GetBookings([FromQuery] string? status, [FromQuery] string? search)
         {
             var query = _context.Bookings.Include(b => b.Room).AsQueryable();
 
-            // Filter berdasarkan Status (Pending/Disetujui/Ditolak)
             if (!string.IsNullOrEmpty(status))
             {
                 query = query.Where(b => b.Status == status);
             }
 
-            // Pencarian berdasarkan Nama Peminjam atau NRP
             if (!string.IsNullOrEmpty(search))
             {
                 query = query.Where(b => b.BorrowerName.Contains(search) || b.BorrowerNrp.Contains(search));
@@ -38,34 +34,58 @@ namespace lapak_backend.Controllers
             return await query.OrderByDescending(b => b.BookingDate).ToListAsync();
         }
 
-        // FITUR: Pencatatan Peminjaman Ruangan
         [HttpPost]
         public async Task<ActionResult<Booking>> CreateBooking(Booking booking)
         {
+            if (booking.EndDate <= booking.StartDate)
+            {
+                return BadRequest("Tanggal selesai harus setelah tanggal mulai.");
+            }
+
             booking.BookingDate = DateTime.UtcNow;
-            booking.Status = "Pending"; // Default awal sesuai permintaan
+            booking.Status = "Pending";
 
             _context.Bookings.Add(booking);
             await _context.SaveChangesAsync();
             return Ok(booking);
         }
 
-        // FITUR: Pengelolaan Status Peminjaman
-        // PATCH: api/booking/5/status
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutBooking(int id, Booking booking)
+        {
+            if (id != booking.Id) return BadRequest("ID tidak cocok.");
+
+            if (booking.EndDate <= booking.StartDate)
+            {
+                return BadRequest("Tanggal selesai harus setelah tanggal mulai.");
+            }
+
+            _context.Entry(booking).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!_context.Bookings.Any(e => e.Id == id)) return NotFound();
+                else throw;
+            }
+
+            return NoContent();
+        }
+
         [HttpPatch("{id}/status")]
         public async Task<IActionResult> UpdateStatus(int id, [FromBody] string newStatus)
         {
             var booking = await _context.Bookings.FindAsync(id);
             if (booking == null) return NotFound();
 
-            // Ubah status: Menunggu Persetujuan, Disetujui, atau Ditolak
             booking.Status = newStatus;
-
             await _context.SaveChangesAsync();
             return NoContent();
         }
 
-        // DELETE: api/booking/5 (Menghapus data peminjaman)
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBooking(int id)
         {

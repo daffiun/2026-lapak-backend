@@ -17,8 +17,8 @@ x64/
 x86/
 
 # ASP.NET Core
-appsettings*.Development.json
-appsettings.json
+**/appsettings*.Development.json
+**/appsettings.json
 
 # Environment 
 .env
